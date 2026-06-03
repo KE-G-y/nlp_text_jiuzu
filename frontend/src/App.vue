@@ -9,14 +9,15 @@ import {
   Tags,
   X,
 } from '@lucide/vue'
+import { productCategories } from './constants/categories'
 import { classifyProductTitle } from './services/classification'
 import type { ClassificationResult } from './types/classification'
 
 const examples = [
-  'Apple iPhone 15 Pro Max 256GB 黑色 原封国行',
-  '法式碎花雪纺连衣裙女夏季收腰显瘦',
-  '家用空气炸锅大容量智能无油电炸锅',
-  '儿童益智拼装积木玩具生日礼物',
+  '美的电热水壶304不锈钢MK-SP50Colour201',
+  '好奇心钻装纸尿裤L40片9-14kg',
+  '潘婷丝质顺滑洗发露750ml',
+  '风味坐标 三鲜狮子头200g/2只',
 ]
 
 const title = ref('')
@@ -27,24 +28,6 @@ const result = ref<ClassificationResult | null>(null)
 const trimmedTitle = computed(() => title.value.trim())
 const canSubmit = computed(() => trimmedTitle.value.length > 1 && !loading.value)
 const titleLength = computed(() => trimmedTitle.value.length)
-const displayPath = computed(() => {
-  if (!result.value) {
-    return []
-  }
-
-  return result.value.categoryPath.length > 0
-    ? result.value.categoryPath
-    : [result.value.categoryName]
-})
-const confidencePercent = computed(() => formatConfidence(result.value?.confidence))
-const confidenceBarWidth = computed(() => {
-  const value = result.value?.confidence
-  if (typeof value !== 'number') {
-    return '0%'
-  }
-
-  return `${Math.round(Math.max(0, Math.min(value, 1)) * 100)}%`
-})
 const resultSourceText = computed(() => {
   if (!result.value) {
     return ''
@@ -52,14 +35,13 @@ const resultSourceText = computed(() => {
 
   return result.value.source === 'api' ? '接口结果' : '本地预览'
 })
-
-function formatConfidence(value?: number) {
-  if (typeof value !== 'number') {
-    return '待确认'
+const resultStatusText = computed(() => {
+  if (!result.value) {
+    return ''
   }
 
-  return `${Math.round(Math.max(0, Math.min(value, 1)) * 100)}%`
-}
+  return result.value.isKnownCategory ? '已命中' : '未收录'
+})
 
 function useExample(sample: string) {
   title.value = sample
@@ -71,6 +53,10 @@ function resetAll() {
   title.value = ''
   errorMessage.value = ''
   result.value = null
+}
+
+function isSelectedCategory(category: string) {
+  return result.value?.categoryName === category
 }
 
 async function submitTitle() {
@@ -107,9 +93,9 @@ async function submitTitle() {
       </div>
 
       <div class="version-badges" aria-label="前端技术栈">
+        <span>30 类</span>
+        <span>单标签</span>
         <span>Vue 3.5</span>
-        <span>Vite 8</span>
-        <span>TypeScript</span>
       </div>
     </header>
 
@@ -139,7 +125,7 @@ async function submitTitle() {
           v-model="title"
           :disabled="loading"
           maxlength="120"
-          placeholder="例如：Apple iPhone 15 Pro Max 256GB 黑色 原封国行"
+          placeholder="例如：美的电热水壶304不锈钢MK-SP50Colour201"
         />
 
         <div class="form-footer">
@@ -173,82 +159,64 @@ async function submitTitle() {
           <ChartNoAxesColumn :size="22" class="panel-icon" aria-hidden="true" />
         </div>
 
-        <div v-if="loading" class="state">
-          <LoaderCircle class="state-icon spin" :size="36" />
-          <h3>正在识别类目</h3>
-        </div>
-
-        <div v-else-if="errorMessage" class="state state-error">
-          <AlertCircle class="state-icon" :size="36" />
-          <h3>分类失败</h3>
-          <p>{{ errorMessage }}</p>
-        </div>
-
-        <div v-else-if="!result" class="state">
-          <Search class="state-icon" :size="36" />
-          <h3>暂无结果</h3>
-        </div>
-
-        <div v-else class="result-content">
-          <div class="result-main">
-            <div class="category-icon" aria-hidden="true">
-              <BadgeCheck :size="28" />
-            </div>
-            <div>
-              <p class="eyebrow">{{ resultSourceText }}</p>
-              <h2>{{ result.categoryName }}</h2>
-            </div>
-            <span class="confidence-badge">{{ confidencePercent }}</span>
+        <div class="result-body">
+          <div v-if="loading" class="state">
+            <LoaderCircle class="state-icon spin" :size="36" />
+            <h3>正在识别类目</h3>
           </div>
 
-          <div class="path-strip" aria-label="分类路径">
-            <span v-for="node in displayPath" :key="node" class="path-node">
-              {{ node }}
+          <div v-else-if="errorMessage" class="state state-error">
+            <AlertCircle class="state-icon" :size="36" />
+            <h3>分类失败</h3>
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <div v-else-if="!result" class="state">
+            <Search class="state-icon" :size="36" />
+            <h3>暂无结果</h3>
+          </div>
+
+          <div v-else class="single-result">
+            <div
+              class="category-icon"
+              :class="{ 'category-icon-warning': !result.isKnownCategory }"
+              aria-hidden="true"
+            >
+              <BadgeCheck :size="28" />
+            </div>
+            <div class="single-result-main">
+              <p class="eyebrow">{{ resultSourceText }}</p>
+              <h2>{{ result.categoryName }}</h2>
+              <p class="title-preview">{{ result.title }}</p>
+            </div>
+            <span
+              class="result-status"
+              :class="{ 'result-status-warning': !result.isKnownCategory }"
+            >
+              {{ resultStatusText }}
             </span>
           </div>
 
-          <dl class="metadata">
-            <div>
-              <dt>类目编码</dt>
-              <dd>{{ result.categoryCode || '待返回' }}</dd>
-            </div>
-            <div>
-              <dt>模型版本</dt>
-              <dd>{{ result.modelVersion || '待返回' }}</dd>
-            </div>
-            <div>
-              <dt>请求编号</dt>
-              <dd>{{ result.requestId || '待返回' }}</dd>
-            </div>
-          </dl>
-
-          <div class="meter" aria-label="置信度">
-            <span :style="{ width: confidenceBarWidth }"></span>
-          </div>
-
-          <div v-if="result.candidates.length" class="candidates">
+          <section class="category-section" aria-labelledby="category-list-title">
             <div class="section-title">
-              <h3>候选分类</h3>
-              <span>{{ result.candidates.length }} 项</span>
+              <h3 id="category-list-title">分类范围</h3>
+              <span>{{ productCategories.length }} 类</span>
             </div>
-            <ul>
-              <li
-                v-for="candidate in result.candidates"
-                :key="`${candidate.code || candidate.name}-${candidate.path.join('/')}`"
-                class="candidate-row"
+            <div class="category-grid" role="list">
+              <span
+                v-for="(category, index) in productCategories"
+                :key="category"
+                class="category-chip"
+                :class="{ 'category-chip-active': isSelectedCategory(category) }"
+                role="listitem"
               >
-                <div>
-                  <strong>{{ candidate.name }}</strong>
-                  <p>{{ candidate.path.join(' / ') }}</p>
-                </div>
-                <span>{{ formatConfidence(candidate.confidence) }}</span>
-              </li>
-            </ul>
-          </div>
+                <span>{{ String(index + 1).padStart(2, '0') }}</span>
+                {{ category }}
+              </span>
+            </div>
+          </section>
 
-          <p v-if="result.reason" class="reason">{{ result.reason }}</p>
-
-          <details v-if="result.raw" class="raw-response">
+          <details v-if="result?.raw" class="raw-response">
             <summary>原始返回</summary>
             <pre>{{ JSON.stringify(result.raw, null, 2) }}</pre>
           </details>

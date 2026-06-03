@@ -1,6 +1,6 @@
 # 商品标题分类前端
 
-基于 Vue 3 + Vite + TypeScript 的商品标题分类页面。用户输入商品标题后，前端会调用后端分类接口并展示类目、置信度、候选分类和原始返回。未配置接口时会自动使用本地 mock 结果，方便先联调页面。
+基于 Vue 3 + Vite + TypeScript 的商品标题分类页面。用户输入商品标题后，前端调用后端接口获取单标签分类结果，并在 30 个固定分类中高亮命中项。未配置接口时会自动使用本地 mock 结果，方便先联调页面。
 
 ## 技术栈
 
@@ -17,8 +17,10 @@ frontend
 │   ├── App.vue                     # 页面入口、状态和交互
 │   ├── main.ts                     # Vue 应用挂载
 │   ├── style.css                   # 页面样式
+│   ├── constants
+│   │   └── categories.ts           # 30 个商品分类
 │   ├── services
-│   │   └── classification.ts       # 分类接口调用和返回值归一化
+│   │   └── classification.ts       # 单标签分类接口调用和返回值归一化
 │   └── types
 │       └── classification.ts       # 分类结果类型定义
 ├── .env.example                    # 环境变量模板
@@ -61,7 +63,7 @@ VITE_CLASSIFY_TIMEOUT_MS=12000
 
 ```json
 {
-  "title": "Apple iPhone 15 Pro Max 256GB 黑色 原封国行"
+  "title": "美的电热水壶304不锈钢MK-SP50Colour201"
 }
 ```
 
@@ -69,25 +71,37 @@ VITE_CLASSIFY_TIMEOUT_MS=12000
 
 ```json
 {
-  "requestId": "cls-20260603-0001",
-  "modelVersion": "product-classifier-v1",
-  "categoryName": "手机",
-  "categoryCode": "3C-MOBILE-PHONE",
-  "categoryPath": ["数码家电", "手机通讯", "手机"],
-  "confidence": 0.93,
-  "reason": "标题包含品牌和机型词，匹配手机类目。",
-  "candidates": [
-    {
-      "name": "手机",
-      "code": "3C-MOBILE-PHONE",
-      "path": ["数码家电", "手机通讯", "手机"],
-      "confidence": 0.93
-    }
-  ]
+  "label": "家电"
 }
 ```
 
-前端也兼容部分常见字段别名，例如 `category_name`、`category`、`score`、`probability`、`topK`、`predictions`。
+前端也兼容以下单标签返回形式：
+
+```json
+"家电"
+```
+
+```json
+{
+  "data": "家电"
+}
+```
+
+```json
+{
+  "result": {
+    "category": "家电"
+  }
+}
+```
+
+兼容字段包括 `label`、`category`、`categoryName`、`category_name`、`class`、`className`、`prediction`、`predicted_label`、`predictedLabel`。
+
+## 30 个分类
+
+```text
+3C数码、个护、书籍、乳品、休闲食品、健康、健康食品、办公、宠物、家居、家电、服饰内衣、母婴、水产、水果、汽车用品、清洁、玩具、礼品、粮油速食、美妆、肉禽蛋、蔬菜、运动、酒饮冲调、钟表配饰、鞋靴箱包、餐饮、香烟、鲜花绿植
+```
 
 ## 构建
 
