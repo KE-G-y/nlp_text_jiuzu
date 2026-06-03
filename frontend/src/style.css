@@ -83,11 +83,11 @@ pre {
 .app-shell {
   display: flex;
   height: 100%;
-  width: min(1180px, calc(100% - 40px));
+  width: min(1240px, calc(100% - 32px));
   min-height: 0;
   flex-direction: column;
   margin: 0 auto;
-  padding: 28px 0;
+  padding: 18px 0;
 }
 
 .topbar {
@@ -95,8 +95,8 @@ pre {
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 0 0 24px;
+  gap: 16px;
+  padding: 0 0 14px;
 }
 
 .brand {
@@ -116,8 +116,8 @@ pre {
 }
 
 .brand-mark {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
 }
 
 .category-icon {
@@ -134,12 +134,12 @@ pre {
 }
 
 h1 {
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1.2;
 }
 
 h2 {
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.25;
 }
 
@@ -172,8 +172,8 @@ h3 {
 .workspace {
   display: grid;
   flex: 1 1 auto;
-  grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.1fr);
-  gap: 20px;
+  grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr);
+  gap: 16px;
   min-height: 0;
   align-items: stretch;
   overflow: hidden;
@@ -190,11 +190,8 @@ h3 {
 .result-panel {
   height: 100%;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 24px;
-  scrollbar-color: #a8b6c3 transparent;
-  scrollbar-width: thin;
+  overflow: hidden;
+  padding: 18px;
 }
 
 .input-panel {
@@ -231,8 +228,8 @@ h3 {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
 .panel-icon {
@@ -257,12 +254,12 @@ h3 {
 
 textarea {
   width: 100%;
-  min-height: 220px;
-  resize: vertical;
+  min-height: 170px;
+  resize: none;
   border: 1px solid var(--line);
   border-radius: 8px;
   outline: none;
-  padding: 15px;
+  padding: 13px;
   color: var(--ink);
   background: var(--panel-soft);
 }
@@ -316,18 +313,19 @@ textarea:disabled {
 .examples {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .example-button {
   flex: 1 1 180px;
-  min-height: 44px;
+  min-height: 36px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 9px 11px;
+  padding: 7px 9px;
   color: #475467;
   background: #ffffff;
+  font-size: 13px;
   text-align: left;
 }
 
@@ -339,13 +337,13 @@ textarea:disabled {
 
 .state {
   display: grid;
-  min-height: 220px;
+  min-height: 100px;
   place-items: center;
   align-content: center;
-  gap: 10px;
+  gap: 4px;
   border: 1px dashed var(--line-strong);
   border-radius: 8px;
-  padding: 34px;
+  padding: 10px;
   color: var(--muted);
   background: var(--panel-soft);
   text-align: center;
@@ -373,17 +371,17 @@ textarea:disabled {
   display: flex;
   min-height: 0;
   flex-direction: column;
-  gap: 18px;
+  gap: 8px;
 }
 
 .single-result {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
   background: var(--panel-soft);
 }
 
@@ -519,35 +517,35 @@ textarea:disabled {
 .category-section {
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 16px;
+  padding: 8px;
   background: #ffffff;
 }
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .category-chip {
   display: flex;
   min-width: 0;
-  min-height: 38px;
+  min-height: 30px;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 5px 6px;
   color: #475467;
   background: var(--panel-soft);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .category-chip > span {
   color: #94a3b8;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -623,8 +621,8 @@ textarea:disabled {
 
 .raw-response pre {
   overflow: auto;
-  max-height: 220px;
-  margin: 12px 0 0;
+  max-height: 180px;
+  margin: 10px 0 0;
   font-size: 12px;
 }
 
@@ -656,7 +654,7 @@ textarea:disabled {
 
   .app-shell {
     height: auto;
-    width: min(100% - 28px, 680px);
+    width: min(100% - 24px, 680px);
     min-height: 100vh;
     padding-top: 22px;
   }
