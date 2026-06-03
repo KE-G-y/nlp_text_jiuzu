@@ -133,6 +133,7 @@ const mockRules: MockRule[] = [
 
 export async function classifyProductTitle(
   title: string,
+  modelName: string,
 ): Promise<ClassificationResult> {
   const normalizedTitle = title.trim()
 
@@ -141,10 +142,17 @@ export async function classifyProductTitle(
   }
 
   const endpoint = getEndpoint()
+  const startedAt = performance.now()
 
   if (shouldUseMock(endpoint)) {
     await wait(360)
-    return createResult(normalizedTitle, matchMockCategory(normalizedTitle), 'mock')
+    return createResult(
+      normalizedTitle,
+      matchMockCategory(normalizedTitle),
+      'mock',
+      modelName,
+      getDurationMs(startedAt),
+    )
   }
 
   const controller = new AbortController()
@@ -156,7 +164,7 @@ export async function classifyProductTitle(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title: normalizedTitle }),
+      body: JSON.stringify({ text: normalizedTitle, model: modelName }),
       signal: controller.signal,
     })
 
@@ -171,7 +179,14 @@ export async function classifyProductTitle(
       throw new Error('分类接口未返回有效标签')
     }
 
-    return createResult(normalizedTitle, categoryName, 'api', payload)
+    return createResult(
+      normalizedTitle,
+      categoryName,
+      'api',
+      modelName,
+      getDurationMs(startedAt),
+      payload,
+    )
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new Error('分类接口请求超时，请稍后重试')
@@ -184,12 +199,16 @@ export async function classifyProductTitle(
 }
 
 function getEndpoint() {
-  return String(import.meta.env.VITE_CLASSIFY_API_URL || '').trim()
+  return String(import.meta.env.VITE_CLASSIFY_API_URL || '/api/predict').trim()
 }
 
 function getTimeoutMs() {
   const value = Number(import.meta.env.VITE_CLASSIFY_TIMEOUT_MS || 12000)
   return Number.isFinite(value) && value > 0 ? value : 12000
+}
+
+function getDurationMs(startedAt: number) {
+  return Math.round(performance.now() - startedAt)
 }
 
 function shouldUseMock(endpoint: string) {
@@ -210,6 +229,8 @@ function createResult(
   title: string,
   categoryName: string,
   source: ClassificationResult['source'],
+  modelName: string,
+  durationMs: number,
   raw?: unknown,
 ): ClassificationResult {
   return {
@@ -219,6 +240,8 @@ function createResult(
       categoryName as (typeof productCategories)[number],
     ),
     source,
+    modelName,
+    durationMs,
     raw,
   }
 }
@@ -254,6 +277,7 @@ function normalizeSingleLabel(payload: unknown): string {
     'class',
     'className',
     'prediction',
+    'pred_class',
     'predicted_label',
     'predictedLabel',
   ])

@@ -5,5 +5,7 @@ export interface ClassificationResult {
   categoryName: string
   isKnownCategory: boolean
   source: ClassificationSource
+  modelName: string
+  durationMs: number
   raw?: unknown
 }
