@@ -1,4 +1,6 @@
 node_modules/
+models/
+bert-base-chinese/
 dist/
 build/
 .vite/

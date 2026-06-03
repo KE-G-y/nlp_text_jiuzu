@@ -20,7 +20,14 @@ const examples = [
   '风味坐标 三鲜狮子头200g/2只',
 ]
 
+const modelOptions = [
+  { label: 'Fasttext字符模型', value: 'fasttext_char' },
+  { label: 'Fasttext词模型', value: 'fasttext_word' },
+  { label: 'bert模型', value: 'bert' },
+]
+
 const title = ref('')
+const selectedModel = ref(modelOptions[0].value)
 const loading = ref(false)
 const errorMessage = ref('')
 const result = ref<ClassificationResult | null>(null)
@@ -59,6 +66,10 @@ function isSelectedCategory(category: string) {
   return result.value?.categoryName === category
 }
 
+function getModelLabel(value: string) {
+  return modelOptions.find((item) => item.value === value)?.label ?? value
+}
+
 async function submitTitle() {
   if (!canSubmit.value) {
     return
@@ -69,7 +80,7 @@ async function submitTitle() {
   result.value = null
 
   try {
-    result.value = await classifyProductTitle(trimmedTitle.value)
+    result.value = await classifyProductTitle(trimmedTitle.value, selectedModel.value)
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : '分类失败，请稍后重试'
@@ -118,6 +129,17 @@ async function submitTitle() {
             <X :size="18" />
           </button>
         </div>
+
+        <label class="field-label" for="model-select">模型选择</label>
+        <select id="model-select" v-model="selectedModel" :disabled="loading">
+          <option
+            v-for="model in modelOptions"
+            :key="model.value"
+            :value="model.value"
+          >
+            {{ model.label }}
+          </option>
+        </select>
 
         <label class="sr-only" for="product-title">商品标题</label>
         <textarea
@@ -188,6 +210,10 @@ async function submitTitle() {
               <p class="eyebrow">{{ resultSourceText }}</p>
               <h2>{{ result.categoryName }}</h2>
               <p class="title-preview">{{ result.title }}</p>
+              <div class="result-meta">
+                <span>模型：{{ getModelLabel(result.modelName) }}</span>
+                <span>耗时：{{ result.durationMs }} ms</span>
+              </div>
             </div>
             <span
               class="result-status"
