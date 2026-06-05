@@ -6,7 +6,6 @@
 在项目根目录执行一键启动脚本：
 
 ```bash
-cd /Users/yaoyao/Desktop/nlp_text_jiuzu
 ./start.sh
 ```
 

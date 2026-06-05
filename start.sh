@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-/Users/yaoyao/anaconda3/envs/TMF_env/bin/python}"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 BACKEND_DIR="$ROOT_DIR/backend"
 FRONTEND_DIR="$ROOT_DIR/frontend"
 BACKEND_PORT="${BACKEND_PORT:-8003}"
@@ -18,9 +18,16 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-if [[ ! -x "$PYTHON_BIN" ]]; then
-  echo "Python 解释器不存在或不可执行：$PYTHON_BIN"
-  echo "可通过 PYTHON_BIN=/path/to/python ./start.sh 指定。"
+if [[ "$PYTHON_BIN" == */* ]]; then
+  if [[ ! -x "$PYTHON_BIN" ]]; then
+    echo "Python 解释器不存在或不可执行：$PYTHON_BIN"
+    echo "可通过 PYTHON_BIN=./.venv/bin/python ./start.sh 指定。"
+    exit 1
+  fi
+  PYTHON_BIN="$(cd "$(dirname "$PYTHON_BIN")" && pwd)/$(basename "$PYTHON_BIN")"
+elif ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+  echo "Python 命令不存在：$PYTHON_BIN"
+  echo "可通过 PYTHON_BIN=python3 ./start.sh 指定。"
   exit 1
 fi
 
