@@ -11,11 +11,13 @@ from pathlib import Path
 from config import conf
 from classifier import BertTitleClassifier
 
+BASE_DIR = Path(__file__).parent
+
 
 def load_model():
     """加载训练好的模型、分词器和类别映射（train.py 保存的三样东西）"""
     # 1. 读取模型元信息（类别数 + 类别名列表）
-    with open(Path(__file__).resolve().parent / 'model_info.json', 'r', encoding='utf-8') as f:
+    with open(BASE_DIR / 'model_info.json', 'r', encoding='utf-8') as f:
         info = json.load(f)
     num_classes = info['num_classes']
     class_names = info['class_names']  # ['手机', '衣服', '食品', ...]
@@ -26,7 +28,7 @@ def load_model():
     # 3. 加载模型
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = BertTitleClassifier(num_classes=num_classes).to(device)
-    MODEL_PATH = Path(__file__).resolve().parent / 'models' / 'model_bert.pt'
+    MODEL_PATH = BASE_DIR / 'models' / 'model_bert.pt'
     model.load_state_dict(torch.load(str(MODEL_PATH), map_location=device))
     model.eval()
 

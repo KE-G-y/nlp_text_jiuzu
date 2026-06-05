@@ -6,7 +6,7 @@ import fasttext
 
 warnings.filterwarnings('ignore')
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).parent
 MODEL_PATHS = {
     'fasttext_char': BASE_DIR / 'models' / 'ft_char.bin',
     'fasttext_word': BASE_DIR / 'models' / 'ft_word.bin',
